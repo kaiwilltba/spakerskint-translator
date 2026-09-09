@@ -158,7 +158,7 @@
 <body>
 
 <div class="container">
-    <h1>🔤 Спакерскинт ↔ Английский</h1>
+    <h1>Спакерскинт ↔ Английский</h1>
     <div class="subtitle">
         <span>Упрощённый переводчик (слово за словом)</span>
         <span class="beta">БЕТА</span>
@@ -166,7 +166,7 @@
 
     <!-- Предупреждение о неполноте словаря -->
     <div class="warning">
-        ⚠️ <strong>Словарь находится в разработке</strong> — переведена только малая часть слов (около 80). 
+        <strong>Словарь находится в разработке</strong> — переведена только малая часть слов (около 80). 
         Непереведённые слова будут показаны как есть с пометкой «[нет перевода]».
     </div>
 
@@ -180,9 +180,8 @@
     </div>
 
     <div class="footer">
-        <span class="stats">📚 Слов в словаре: <span id="dictSize">0</span></span>
-        <span class="watermark">⚡ <strong>DeepSeek</strong> · бета-помощник</span>
-        <span>🔧 <a href="#" id="editHint">Как редактировать?</a></span>
+        <span class="stats">Слов в словаре: <span id="dictSize">0</span></span>
+        <span><a href="#" id="editHint">Как редактировать?</a></span>
     </div>
 </div>
 
@@ -347,7 +346,7 @@
     document.getElementById('editHint').addEventListener('click', (e) => {
         e.preventDefault();
         alert(
-            '🔧 КАК РЕДАКТИРОВАТЬ ПРИЛОЖЕНИЕ НА CLOUDFLARE:\n\n' +
+            'КАК РЕДАКТИРОВАТЬ ПРИЛОЖЕНИЕ НА CLOUDFLARE:\n\n' +
             '1. Зарегистрируйтесь на CloudFlare и перейдите в панель Dashboard.\n' +
             '2. Выберите «Pages» (или «Workers»).\n' +
             '3. Создайте новый проект, загрузив этот HTML-файл (или подключив Git-репозиторий).\n' +
@@ -356,7 +355,7 @@
             '   - Для Workers: откройте Worker → «Quick Edit» и измените JavaScript прямо в браузере.\n' +
             '5. Чтобы добавить новые слова, отредактируйте объект `dictionary` в разделе <script>.\n' +
             '6. Сохраните изменения — CloudFlare автоматически переразвернёт приложение.\n\n' +
-            '💡 Более подробная инструкция есть в документации CloudFlare: https://developers.cloudflare.com/pages/'
+            'Более подробная инструкция есть в документации CloudFlare: https://developers.cloudflare.com/pages/'
         );
     });
 
