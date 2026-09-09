@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Переводчик Спакерскинт (бета)</title>
+    <style>
+        /* Стили для чистого и понятного интерфейса */
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        body {
+            background: #f5f2ed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            padding: 30px 35px 25px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            border: 1px solid #e0d6cc;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 300;
+            color: #3e3a36;
+            margin-top: 0;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+        .subtitle {
+            color: #8a7f76;
+            font-size: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 12px;
+        }
+        .subtitle .beta {
+            background: #d4c9bf;
+            color: #3e3a36;
+            border-radius: 12px;
+            padding: 0 10px;
+            font-size: 13px;
+            display: inline-block;
+            margin-left: 8px;
+        }
+        .warning {
+            background: #fff3e0;
+            border-left: 5px solid #ffb74d;
+            padding: 12px 18px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            font-size: 14px;
+            color: #5d4e3f;
+        }
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        #inputText {
+            flex: 1;
+            min-width: 200px;
+            padding: 14px 18px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 40px;
+            outline: none;
+            background: #faf8f6;
+            transition: 0.2s;
+        }
+        #inputText:focus {
+            border-color: #8f7b6a;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(143, 123, 106, 0.15);
+        }
+        #translateBtn {
+            padding: 14px 32px;
+            background: #5d4e3f;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        #translateBtn:hover {
+            background: #4a3d31;
+            transform: scale(1.02);
+        }
+        #translateBtn:active {
+            transform: scale(0.97);
+        }
+        .output-area {
+            background: #faf8f6;
+            border-radius: 20px;
+            padding: 18px 22px;
+            min-height: 80px;
+            border: 1px solid #e0d6cc;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 17px;
+            color: #2d2824;
+        }
+        .output-area .placeholder {
+            color: #b0a69c;
+            font-style: italic;
+        }
+        .footer {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 13px;
+            color: #9b8f83;
+            border-top: 1px solid #eee;
+            padding-top: 18px;
+        }
+        .watermark {
+            font-weight: 400;
+            letter-spacing: 0.3px;
+            background: #f0ebe6;
+            padding: 4px 14px;
+            border-radius: 30px;
+        }
+        .watermark strong {
+            font-weight: 600;
+            color: #3e3a36;
+        }
+        .stats {
+            font-size: 13px;
+            color: #b0a69c;
+        }
+        a {
+            color: #7d6b5b;
+            text-decoration: none;
+            border-bottom: 1px dotted #ccc;
+        }
+        a:hover {
+            color: #3e2f26;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔤 Спакерскинт ↔ Английский</h1>
+    <div class="subtitle">
+        <span>Упрощённый переводчик (слово за словом)</span>
+        <span class="beta">БЕТА</span>
+    </div>
+
+    <!-- Предупреждение о неполноте словаря -->
+    <div class="warning">
+        ⚠️ <strong>Словарь находится в разработке</strong> — переведена только малая часть слов (около 80). 
+        Непереведённые слова будут показаны как есть с пометкой «[нет перевода]».
+    </div>
+
+    <div class="input-group">
+        <input type="text" id="inputText" placeholder="Введите слово или фразу на английском..." autofocus>
+        <button id="translateBtn">Перевести</button>
+    </div>
+
+    <div class="output-area" id="outputArea">
+        <span class="placeholder">Перевод появится здесь...</span>
+    </div>
+
+    <div class="footer">
+        <span class="stats">📚 Слов в словаре: <span id="dictSize">0</span></span>
+        <span class="watermark">⚡ <strong>DeepSeek</strong> · бета-помощник</span>
+        <span>🔧 <a href="#" id="editHint">Как редактировать?</a></span>
+    </div>
+</div>
+
+<script>
+    // ===================== СЛОВАРЬ =====================
+    // Извлечён из «Comprehensive Dictionary of the Spakerskint Language» (первые страницы)
+    // + базовые местоимения и частицы из правил
+    const dictionary = {
+        // Основные слова (англ. -> спакерскинт)
+        "aborigine": "Wlsdecerdasio",
+        "abound": "Wlsviesiotte",
+        "about": "Kes",
+        "above": "Atas",
+        "abrasion": "Abras",
+        "abrasive": "Kasar",
+        "abreast": "Pegami",
+        "abridge": "Ograni",
+        "abroad": "Tupajau",
+        "abrupt": "Strah",
+        "abscess": "Nanah",
+        "abscond": "Sembuny",
+        "abseil": "Melinuk",
+        "absence": "Demenjad",
+        "absolute": "Tak",
+        "absolve": "Bebaske",
+        "absorb": "Tulakasi",
+        "abstain": "Wstymas",
+        "abstract": "Destandar",
+        "absurd": "Kedres",
+        "abundance": "Tak",
+        "abuse": "Sizuka",
+        "abut": "Jauhi",
+        "abysmal": "Dedasar",
+        "acadimic": "Atasekolasioter",
+        "academy": "Atasekolah",
+        "accede": "Gertejuh",
+        "accelerate": "Pafiers",
+        "accent": "Vokras",
+        "accept": "Gertejuh",
+        "access": "Mengasej",
+        "accessory": "Aksejoj",
+        "accident": "Vipadeh",
+        "acclaim": "Oklaskiveh",
+        "acclamation": "Wlspopoh",
+        "acclimate": "Beradatah",
+        "accommodate": "Hipereh",
+        "accompanist": "Fraikafer",
+        "accompany": "Pahipersi",
+        "accomplice": "Pahipersifer",
+        "accomplish": "Dehiperji",
+        "accord": "Porozumeji",
+        "accordance": "Aglejyhi",
+        "according to": "Pa agdlejysio",
+        "accost": "Pagertehi",
+        "account": "Mymerikyxi",
+        "accountant": "Akuntaj",
+        "accredit": "Terakuan",
+        "accrue": "Paletajin",
+        "accuracy": "Hipersitam",
+        "accuse": "Dakraji",
+        "accustom": "Mengajah",
+        "ache": "Hich",
+        "achieve": "Defensi",
+        "acid": "Asam",
+        "acknowledge": "Uznac",
+        "acne": "Peradangan",
+        "acorn": "Ezkura",
+        "acoustic": "Fagrahi",
+        "acquaint": "Pahipersi",
+        "acquiesce": "Paju",
+        "acquire": "Membeli",
+        "acquit": "Membebaskan",
+        "acre": "Agry",
+        "acrid": "Keliamajan",
+        "adapter": "Adaptilo",
+        "addendum": "Aldonajo",
+        "addict": "Dependulo",
+        "addition": "Kuikujase",
+        "address": "Cerkeji",
+        "adept": "Bernik",
+        "adequacy": "Dyjakehi",
+        "adhere": "Indikofik",
+        "adherent": "Prixilinik",
+        "adjacent": "Gafasi",
+        "adjoin": "Hdjoin",
+        "adjutant": "Hidoji",
+        "adman": "Blokiterte",
+        "administer": "Farquahi",
+        "admirable": "Terpuji",
+        "admiral": "Farkas",
+        "admiration": "Gaitai",
+        "admire": "Mynegaymi",
+        "admissible": "Dopuscdalni",
+        "admission": "Admiski",
+        "admit": "Admit",
+        "admonish": "Marasi",
+        "admonition": "Marasi",
+
+        // Местоимения и частицы (из правил)
+        "i": "aku",
+        "you": "an",
+        "he": "dia",
+        "she": "dia",
+        "it": "dia",
+        "we": "aku" /* упрощённо */,
+        "they": "dia" /* упрощённо */,
+        "would": "kas",       // частица сослагательного наклонения
+        "not": "dek",         // отрицание (ставится перед глаголом)
+        "love": "filesioter"  // глагол "любить" (настоящее время)
+        // Можно добавить ещё глаголы, но для примера достаточно
+    };
+
+    // Отображение количества слов в словаре
+    document.getElementById('dictSize').textContent = Object.keys(dictionary).length;
+
+    // ===================== ЛОГИКА ПЕРЕВОДА =====================
+    function translateText(text) {
+        if (!text.trim()) return '';
+
+        // Приводим к нижнему регистру и разбиваем на слова
+        const words = text.toLowerCase().split(/\s+/);
+        const translated = words.map(word => {
+            // Убираем пунктуацию для поиска (но сохраняем для вывода)
+            const clean = word.replace(/[^a-zA-Z']/g, '');
+            if (!clean) return word; // если только пунктуация
+
+            const translation = dictionary[clean];
+            if (translation) {
+                return translation;
+            } else {
+                return `[${word} ?]`; // пометка о недостающем слове
+            }
+        });
+
+        return translated.join(' ');
+    }
+
+    // ===================== ОБРАБОТЧИКИ =====================
+    const input = document.getElementById('inputText');
+    const output = document.getElementById('outputArea');
+    const btn = document.getElementById('translateBtn');
+
+    function performTranslation() {
+        const inputText = input.value;
+        if (!inputText.trim()) {
+            output.innerHTML = '<span class="placeholder">Введите текст для перевода...</span>';
+            return;
+        }
+        const result = translateText(inputText);
+        output.textContent = result; // используем textContent, чтобы не исполнять HTML
+    }
+
+    btn.addEventListener('click', performTranslation);
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            performTranslation();
+        }
+    });
+
+    // ===================== ИНСТРУКЦИЯ ПО РЕДАКТИРОВАНИЮ =====================
+    document.getElementById('editHint').addEventListener('click', (e) => {
+        e.preventDefault();
+        alert(
+            '🔧 КАК РЕДАКТИРОВАТЬ ПРИЛОЖЕНИЕ НА CLOUDFLARE:\n\n' +
+            '1. Зарегистрируйтесь на CloudFlare и перейдите в панель Dashboard.\n' +
+            '2. Выберите «Pages» (или «Workers»).\n' +
+            '3. Создайте новый проект, загрузив этот HTML-файл (или подключив Git-репозиторий).\n' +
+            '4. После развёртывания вы сможете редактировать код прямо в веб-интерфейсе:\n' +
+            '   - Для Pages: откройте проект → «Deployments» → выберите нужную версию → «View build» → «Edit on GitHub» (если подключён репозиторий) или скачайте и загрузите новый файл.\n' +
+            '   - Для Workers: откройте Worker → «Quick Edit» и измените JavaScript прямо в браузере.\n' +
+            '5. Чтобы добавить новые слова, отредактируйте объект `dictionary` в разделе <script>.\n' +
+            '6. Сохраните изменения — CloudFlare автоматически переразвернёт приложение.\n\n' +
+            '💡 Более подробная инструкция есть в документации CloudFlare: https://developers.cloudflare.com/pages/'
+        );
+    });
+
+    // Автофокус
+    input.focus();
+</script>
+
+</body>
+</html>
